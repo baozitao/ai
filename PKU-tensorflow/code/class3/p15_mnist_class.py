@@ -24,8 +24,10 @@ class MnistModel(Model):
 model = MnistModel()
 
 model.compile(optimizer='adam',
-              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False),
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(
+                  from_logits=False),
               metrics=['sparse_categorical_accuracy'])
 
-model.fit(x_train, y_train, batch_size=32, epochs=5, validation_data=(x_test, y_test), validation_freq=1)
+model.fit(x_train, y_train, batch_size=32, epochs=5,
+          validation_data=(x_test, y_test), validation_freq=1)
 model.summary()
