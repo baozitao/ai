@@ -1,5 +1,5 @@
 import openai
-openai.api_key = "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"
+openai.api_key = "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"
 
 
 # 调用API获取模型列表
