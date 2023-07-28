@@ -1,3 +1,6 @@
+-- 安装 DM 数据库后，在/etc/rc.d/init.d 中有名称为 DmService 开头的文件，文件全名为 DmService+实例名（例：如果实例名为 DMSERVER，则相对应的服务文件为DmServiceDMSERVER ） 。 以 实 例 名 为 DMSERVER 为 例 ， 在 终 端 输入./DmServiceDMSERVER start 或者 service DmServiceDMSERVER start 即可启动 DM 数据库。
+
+
 -- 权限管理
 --grant create table to hrtest; --授予权限
 --revoke select on dmhr.employee from hrtest; -- 回收权限
@@ -16,6 +19,7 @@
 --select name from v$database;
 
 --用户管理
+--SELECT USER_USED_SPACE('TEST_USER'); -- 查看用户占用的空间
 --select username  from dba_users;  --查看有哪些用户
 --select user; --查看当前用户
 --create user hrtest IDENTIFIED by Dameng123; --创建用户
@@ -30,10 +34,12 @@
 --模式管理（仅对当前会话生效）
 --set SCHEMA hrtest;  --切换模式
 --select * from SYSOBJECTS t where t."TYPE$" ='SCH'; --查看模式
+--select * from dba_tables t where t.owner='LJBDDB';  -- 查询模式下表
 --select sys_context('USERENV','CURRENT_SCHEMA');--查看当前模式和当前用户
 --create schema hrtest01 AUTHORIZATION HRTEST; --创建模式
 --create table hrtest01.t_test(id int, name varchar(20));--在模式下创建表
 --select a.id scheid, a.name schename, b.id userid, b.name username from SYS.SYSOBJECTS a, SYS.SYSOBJECTS b where a."TYPE$" = 'SCH' and a.pid = b.id;-- 查看模式用户对应关系
+
 
 -- 表空间管理
 --create tablespace tbs DATAFILE 'TBS01.DBF' size 32;
@@ -47,14 +53,25 @@
 --select  *  from dba_tables;  --查看库中所有表的信息，包括所有者和表名
 
 -------------------------------------------------------------------- 表管理 --------------------------------------------------------------------
+--SELECT TABLE_USED_SPACE('SYSDBA', 'TEST'); -- 查看表占用空间
+--SELECT TABLE_USED_PAGES('SYSDBA', 'TEST'); -- 查看表使用的页数
+--SELECT INDEX_USED_SPACE(33555463); -- 查看索引占用的空间
+--SELECT INDEX_USED_PAGES(33555463); -- 查看索引使用的页数
+--CREATE TABLE NEW_EMP AS SELECT * FROM EMPLOYEE; -- 查询建表
+--SELECT * FROM TT INTERSECT SELECT * FROM KK; --使用 INTERSECT 查询 TT 表中和 KK 表中都有的数据。
+--SELECT * FROM TT MINUS SELECT * FROM KK; --使用 MINUS 或 EXCEPT 查询 tt 表中有的，kk 表中没有的数据。
 --create table hrtest.t_testpid(pid int,pname varchar(20),sex bit,logtime datetime) TABLESPACE tbs; --创建表
 --alter table hrtest.t_testpid add column (salary varchar(20));--添加字段：
 --alter table hrtest.t_testpid modify email varchar(50);--修改字段类型：
 --alter table hrtest.t_testpid drop logtime;--删除字段
 --alter table hrtest.t_testpid add column logtime datetime default sysdate;--对字段添加默认值（大表不建议添加字段时给默认值，耗时很长）：
 --alter table t_testpid rename to t_testoa;--重命名表：
+--SELECT NAME, AUTHOR, PUBLISHER, NOWPRICE FROM PRODUCTION.PRODUCT WHERE NOWPRICE BETWEEN 10 AND 20; -- 范围筛选查询
+--SELECT NAME, AUTHOR FROM PRODUCTION.PRODUCT WHERE PUBLISHER IN ('中华书局', '人民文学出版社'); --IN查询
+--SELECT ADDRESSID, ADDRESS1, CITY, POSTALCODE FROM PERSON.ADDRESS WHERE ADDRESS1 LIKE '___关山%202';--使用 LIKE 谓词的查询
+--UPDATE PRODUCTION.PRODUCT SET NOWPRICE = NOWPRICE - 2.0000 WHERE PUBLISHER = '中华书局'; --将出版社为中华书局的图书的现在销售价格增加 1 元。
 --alter table t_testoa rename column id to pid;--重命名字段：
---select * from dba_tables t where t.owner='LJBDDB';  -- 查询固定模式下表
+--select * from dba_tables t where t.owner='LJBDDB';  -- 查询模式下表
 --select * from dba_tab_columns t where t.owner='HRTEST'; -- 查询固定模式下所有表的所有列
 --select t.TABLE_NAME, t.TABLESPACE_NAME from user_tables t;
 --select t.TABLE_NAME, t.COLUMN_NAME, t.NULLABLE from USER_TAB_COLS t;
