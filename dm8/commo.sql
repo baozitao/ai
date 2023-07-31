@@ -1,15 +1,16 @@
 -- 安装 DM 数据库后，在/etc/rc.d/init.d 中有名称为 DmService 开头的文件，文件全名为 DmService+实例名（例：如果实例名为 DMSERVER，则相对应的服务文件为DmServiceDMSERVER ） 。 以 实 例 名 为 DMSERVER 为 例 ， 在 终 端 输入./DmServiceDMSERVER start 或者 service DmServiceDMSERVER start 即可启动 DM 数据库。
 
 -- 系统表查询
---select name,type$,subtype$ from sysobjects where name like '%TABLE%' and subtype$ in 'STAB'; 查询系统内名称包含TABLE的子类为STAB的系统对象名称
+-- select name,type$,subtype$ from sysobjects where name like '%TABLE%' and subtype$ in 'STAB'; 查询系统内名称包含TABLE的子类为STAB的系统对象名称
 
 -- 查看数据库版本
---select * from V$VERSION;
---select * from V$DATABASE;
+-- select * from V$VERSION;
+-- select * from V$DATABASE;
 --select * from V$INSTANCE;
 --select * from V$TABLESPACE;
 --select * from V$LICENSE;
---select * V$DATAFILE;
+-- select * from V$DATAFILE;
+
 
 
 -- 权限管理
