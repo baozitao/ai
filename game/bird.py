@@ -1,63 +1,99 @@
 import pygame
-import sys
+import random
 
-# Game variables
-gravity = 0.25
-bird_movement = 0
-game_active = True
-
-# Pygame initialization
+# 初始化pygame
 pygame.init()
-screen = pygame.display.set_mode((288, 512))
 
-# Clock
-clock = pygame.time.Clock()
+# 颜色定义
+WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
 
-# Game Images
-bg_surface = pygame.image.load('assets/background-night.png').convert()
-floor_surface = pygame.image.load('assets/base.png').convert()
-bird_surface = pygame.image.load('assets/bluebird-midflap.png').convert()
-bird_rect = bird_surface.get_rect(center = (50, 256))
+# 屏幕尺寸
+SCREEN_WIDTH = 640
+SCREEN_HEIGHT = 480
+BLOCK_SIZE = 20
 
-floor_x_pos = 0
+class Snake:
+    def __init__(self):
+        self.positions = [(5, 5), (4, 5), (3, 5)]
+        self.direction = (1, 0)
+        self.grow = False
 
-def draw_floor():
-    screen.blit(floor_surface, (floor_x_pos, 450))
-    screen.blit(floor_surface, (floor_x_pos + 288, 450))
+    def move(self):
+        head = self.positions[0]
+        new_head = ((head[0] + self.direction[0]) % (SCREEN_WIDTH // BLOCK_SIZE),
+                    (head[1] + self.direction[1]) % (SCREEN_HEIGHT // BLOCK_SIZE))
+        self.positions = [new_head] + self.positions[:-1]
+        if self.grow:
+            self.positions.append(self.positions[-1])
+            self.grow = False
 
-def check_collision(bird_rect):
-    global game_active
-    if bird_rect.top <= -50 or bird_rect.bottom >= 450:
-        game_active = False
+    def eat(self, food):
+        if self.positions[0] == food.position:
+            self.grow = True
+            return True
+        return False
 
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            sys.exit()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE and game_active:
-                bird_movement = 0
-                bird_movement -= 6
-            if event.key == pygame.K_SPACE and game_active == False:
-                game_active = True
-                bird_rect.center = (50, 256)
-                bird_movement = 0
+    def collide(self):
+        return self.positions[0] in self.positions[1:]
 
-    screen.blit(bg_surface, (0, 0))
+    def draw(self, screen):
+        for segment in self.positions:
+            pygame.draw.rect(screen, GREEN, (segment[0]*BLOCK_SIZE, segment[1]*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE))
 
-    if game_active:
-        bird_movement += gravity
-        rotated_bird = bird_surface
-        bird_rect.centery += bird_movement
-        screen.blit(rotated_bird, bird_rect)
-        game_active = check_collision(bird_rect)
+class Food:
+    def __init__(self):
+        self.position = (random.randint(0, (SCREEN_WIDTH // BLOCK_SIZE) - 1),
+                         random.randint(0, (SCREEN_HEIGHT // BLOCK_SIZE) - 1))
+        self.is_food_on_screen = True
 
-    # Floor
-    floor_x_pos -= 1
-    draw_floor()
-    if floor_x_pos <= -288:
-        floor_x_pos = 0
+    def draw(self, screen):
+        pygame.draw.rect(screen, RED, (self.position[0]*BLOCK_SIZE, self.position[1]*BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE))
 
-    pygame.display.update()
-    clock.tick(120)
+    def randomize_position(self):
+        self.position = (random.randint(0, (SCREEN_WIDTH // BLOCK_SIZE) - 1),
+                         random.randint(0, (SCREEN_HEIGHT // BLOCK_SIZE) - 1))
+
+def main():
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("Snake Game")
+
+    snake = Snake()
+    food = Food()
+
+    clock = pygame.time.Clock()
+
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP and snake.direction != (0, 1):
+                    snake.direction = (0, -1)
+                if event.key == pygame.K_DOWN and snake.direction != (0, -1):
+                    snake.direction = (0, 1)
+                if event.key == pygame.K_LEFT and snake.direction != (1, 0):
+                    snake.direction = (-1, 0)
+                if event.key == pygame.K_RIGHT and snake.direction != (-1, 0):
+                    snake.direction = (1, 0)
+
+        snake.move()
+        if snake.eat(food):
+            food.randomize_position()
+        if snake.collide():
+            running = False
+
+        screen.fill(BLUE)
+        snake.draw(screen)
+        food.draw(screen)
+        pygame.display.flip()
+
+        clock.tick(10)
+
+    pygame.quit()
+
+if __name__ == "__main__":
+    main()
